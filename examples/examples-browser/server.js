@@ -3,6 +3,7 @@ const path = require('path')
 const { get } = require('request')
 
 const app = express()
+const apiRouter = require('./routes/api');
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -10,29 +11,12 @@ app.use(express.urlencoded({ extended: true }))
 const viewsDir = path.join(__dirname, 'views')
 app.use(express.static(viewsDir))
 app.use(express.static(path.join(__dirname, './public')))
-app.use(express.static(path.join(__dirname, '../images')))
 app.use(express.static(path.join(__dirname, '../media')))
 app.use(express.static(path.join(__dirname, '../../weights')))
 app.use(express.static(path.join(__dirname, '../../dist')))
 
-app.get('/', (req, res) => res.redirect('/face_detection'))
-app.get('/face_detection', (req, res) => res.sendFile(path.join(viewsDir, 'faceDetection.html')))
-app.get('/face_landmark_detection', (req, res) => res.sendFile(path.join(viewsDir, 'faceLandmarkDetection.html')))
-app.get('/face_expression_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'faceExpressionRecognition.html')))
-app.get('/age_and_gender_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'ageAndGenderRecognition.html')))
-app.get('/face_extraction', (req, res) => res.sendFile(path.join(viewsDir, 'faceExtraction.html')))
-app.get('/face_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'faceRecognition.html')))
+app.get('/', (req, res) => res.redirect('/video_face_tracking'))
 app.get('/video_face_tracking', (req, res) => res.sendFile(path.join(viewsDir, 'videoFaceTracking.html')))
-app.get('/webcam_face_detection', (req, res) => res.sendFile(path.join(viewsDir, 'webcamFaceDetection.html')))
-app.get('/webcam_face_landmark_detection', (req, res) => res.sendFile(path.join(viewsDir, 'webcamFaceLandmarkDetection.html')))
-app.get('/webcam_face_expression_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'webcamFaceExpressionRecognition.html')))
-app.get('/webcam_age_and_gender_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'webcamAgeAndGenderRecognition.html')))
-app.get('/bbt_face_landmark_detection', (req, res) => res.sendFile(path.join(viewsDir, 'bbtFaceLandmarkDetection.html')))
-app.get('/bbt_face_similarity', (req, res) => res.sendFile(path.join(viewsDir, 'bbtFaceSimilarity.html')))
-app.get('/bbt_face_matching', (req, res) => res.sendFile(path.join(viewsDir, 'bbtFaceMatching.html')))
-app.get('/bbt_face_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'bbtFaceRecognition.html')))
-app.get('/batch_face_landmarks', (req, res) => res.sendFile(path.join(viewsDir, 'batchFaceLandmarks.html')))
-app.get('/batch_face_recognition', (req, res) => res.sendFile(path.join(viewsDir, 'batchFaceRecognition.html')))
 
 app.post('/fetch_external_image', async (req, res) => {
   const { imageUrl } = req.body
@@ -47,6 +31,7 @@ app.post('/fetch_external_image', async (req, res) => {
     return res.status(404).send(err.toString())
   }
 })
+app.use('/api', apiRouter);
 
 app.listen(3000, () => console.log('Listening on port 3000!'))
 
@@ -71,3 +56,16 @@ function request(url, returnBuffer = true, timeout = 10000) {
     })
   })
 }
+
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // render the error page
+  res.status(err.status || 500);
+  res.send({ msg: err.message });
+});
