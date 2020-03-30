@@ -12,7 +12,7 @@ git clone https://github.com/dkel03/tracking-face
 ## Running the Browser Examples
 
 ``` bash
-cd face-api.js/examples/examples-browser
+cd tracking-face/examples/examples-browser
 npm i
 npm start
 ```
