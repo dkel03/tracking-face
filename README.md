@@ -1,4 +1,5 @@
 # face-api.js
+example에서 걍 페이스 트레킹만 추출함
 
 # Running the Examples
 
